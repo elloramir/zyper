@@ -1,14 +1,7 @@
 const jsdom = require("jsdom");
+const readability = require("@mozilla/readability");
 const utils = require("./utils");
 
-const maxTextContentSize = 50;
-const ignoredTags = new Set([
-	"script",
-	"style",
-	"canvas",
-	"template",
-	"iframe",
-]);
 
 module.exports.loadDocument = async function(url) {
 	console.debug(`Parsing web page: ${url}`);
@@ -22,6 +15,13 @@ module.exports.loadDocument = async function(url) {
 
 	const dom = new jsdom.JSDOM(content, { url });
 	const document = dom.window.document;
+	const reader = new readability.Readability(document);
+	const parsed = reader.parse();
+
+	if (parsed && parsed.content) {
+		const filteredDom = new jsdom.JSDOM(parsed.content, { url });
+		return filteredDom.window.document;
+	}
 
 	return document;
 };
@@ -31,7 +31,6 @@ module.exports.encodeHTML = function encodeHTML(domElement, parent, mapper) {
 		console.debug("Mapping text nodes into hash indices");
 	}
 
-	const elementName = domElement?.tagName?.toLowerCase();
 	const hashId = utils.genHash(4);
 
 	// Accepts Text Elements
@@ -47,22 +46,7 @@ module.exports.encodeHTML = function encodeHTML(domElement, parent, mapper) {
 			parent: parent,
 		});
 
-		// Clamp content
-		let clampedContent = content;
-		if (content.length > maxTextContentSize) {
-			const half = maxTextContentSize/2^0;
-			const left = content.slice(0, half);
-			const right = content.slice(content.length - half);
-			clampedContent = `${left} ... ${right}`;
-		}
-
-		return `<text content="${clampedContent}" hash="${hashId}">`;
-	}
-
-	// Ignore scripts because most of the time it
-	// just gibbersh our text content.
-	if (ignoredTags.has(elementName)) {
-		return "";
+		return `<text content="${content}" hash="${hashId}">`;
 	}
 
 	// Recursive encoder
