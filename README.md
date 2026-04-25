@@ -42,3 +42,5 @@ This makes it portable, easy to version, and quick to tweak by hand.
 - [ ] Area of interest detection using algorithms like TextRank
 - [ ] Better LLM API to use different models and providers
 - [ ] Post-processing functions instead of regex for more complex transformations? (good idea or unsafe?)
+- [ ] Render react and other SPA for better support (try to avoid headless browsers)
+- [ ] Implement MCP for agentic AI integration

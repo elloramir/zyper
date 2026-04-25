@@ -1,6 +1,7 @@
 const jsdom = require("jsdom");
 const utils = require("./utils");
 
+const maxTextContentSize = 50;
 const ignoredTags = new Set([
 	"script",
 	"style",
@@ -46,7 +47,16 @@ module.exports.encodeHTML = function encodeHTML(domElement, parent, mapper) {
 			parent: parent,
 		});
 
-		return `<text content="${content}" hash="${hashId}">`;
+		// Clamp content
+		let clampedContent = content;
+		if (content.length > maxTextContentSize) {
+			const half = maxTextContentSize/2^0;
+			const left = content.slice(0, half);
+			const right = content.slice(content.length - half);
+			clampedContent = `${left} ... ${right}`;
+		}
+
+		return `<text content="${clampedContent}" hash="${hashId}">`;
 	}
 
 	// Ignore scripts because most of the time it
