@@ -1,4 +1,6 @@
-### Zyper
+### Zyper Toy
+
+*This project is in early stages, expect not proper error handling, rough edges, and a lot of room for improvement.*
 
 Zyper is a tiny helper for creating and using web scraping schemas.
 Its main focus is letting you describe extraction rules in plain, explanatory language so the model can build the regex for you, instead of you manually hunting elements and crafting patterns by hand.
