@@ -36,3 +36,9 @@ const data = await scraper.scrapeSite("https://example.com", stored);
 The schema is just JSON with three values per field: selector, regex, and data type.
 This makes it portable, easy to version, and quick to tweak by hand.
 
+### Goals
+- [ ] Neasted schemas
+- [ ] Even smaller encoded HTML for faster processing and better LLM performance
+- [ ] Area of interest detection using algorithms like TextRank
+- [ ] Better LLM API to use different models and providers
+- [ ] Post-processing functions instead of regex for more complex transformations? (good idea or unsafe?)
