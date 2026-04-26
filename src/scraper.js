@@ -1,8 +1,8 @@
 const html = require("./html");
 const llm = require("./llm");
 
-module.exports.createScrapeSchema = async function(url, jsonSchema) {
-	const document = await html.loadDocument(url);
+module.exports.createScrapeSchema = async function(descriptor) {
+	const document = await html.loadDocument(descriptor.meta.url);
 	const mapper = new Map();
 	const encoded = html.encodeHTML(document.body, null, mapper);
 	const dataResponse = await llm.askJson(`
@@ -11,7 +11,7 @@ module.exports.createScrapeSchema = async function(url, jsonSchema) {
 		Given the encoded HTML below, map each field from the schema to the correct text node.
 		
 		Schema to extract:
-		${JSON.stringify(jsonSchema)}
+		${JSON.stringify(descriptor.api)}
 		
 		RULES - follow exactly:
 		1. Return ONLY a JSON object where every key matches a field from the schema above.
@@ -32,13 +32,22 @@ module.exports.createScrapeSchema = async function(url, jsonSchema) {
 	`);
 
 	const fields = Object.keys(dataResponse);
-	const finalSchema = { };
+	const finalSchema = {
+		meta: {
+			url: descriptor.meta.url,
+		},
+		api: { },
+	};
 	for (const fieldName of fields) {
 		const [ hash, regex, dataType ] = dataResponse[fieldName];
 		const query = html.convertMapperHashToQuery(mapper, hash);
 
 		// Using final query to always find that element
-		finalSchema[fieldName] = [ query, regex, dataType ];
+		finalSchema.api[fieldName] = {
+			query,
+			regex,
+			dataType,
+		};
 	}
 
 	return finalSchema;
@@ -66,19 +75,19 @@ function convertDataType(str, type) {
 	}
 }
 
-module.exports.scrapeSite = async function(url, schemaJson) {
-	const document = await html.loadDocument(url);
+module.exports.scrapeSite = async function(schema) {
+	const document = await html.loadDocument(schema.meta.url);
 	const finalData = {};
 
-	for (const key in schemaJson) {
-		const [query, pattern, dataType] = schemaJson[key];
-		const domElement = document.querySelector(query);
+	for (const key in schema.api) {
+		const field = schema.api[key];
+		const domElement = document.querySelector(field.query);
 
 		const raw = domElement
 		  ? domElement.textContent.trim()
-		  : `undefined: ${query}`;
+		  : `undefined: ${field.query}`;
 
-		finalData[key] = convertDataType(applyPattern(raw, pattern), dataType);
+		finalData[key] = convertDataType(applyPattern(raw, field.regex), field.dataType);
 	}
 
 	return finalData;

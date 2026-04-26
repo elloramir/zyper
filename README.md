@@ -17,23 +17,25 @@ The short example below shows how to create a schema and use it right away.
 - You can override the default LLM by providing a custom `askJson` function that returns structured data.
 
 ```js
-const schema = await scraper.createScrapeSchema(
-    "https://example.com",
-    {
+const schema = await scraper.createScrapeSchema({
+    meta: {
+        url: "https://example.com",
+    },
+    api: {
         title: "<string> (on regex, make initial letters capitalized)",
         price: "<float> (on regex, remove $ sign)",
         updatedAt: "<HH:MM> (can keep as string, but make sure to format as HH:MM)",
     }
-);
+});
 
 utils.saveJson(schema, "schemas/schema-example.json");
 
 const stored = utils.openJson("schemas/schema-example.json");
-const data = await scraper.scrapeSite("https://example.com", stored);
+const data = await scraper.scrapeSite(stored);
 // returns { title: "Example Domain", price: 9.99, updatedAt: "12:30" }
 ```
 
-The schema is just JSON with three values per field: selector, regex, and data type.
+The schema is JSON with meta + api. Each field has query, regex, and dataType.
 This makes it portable, easy to version, and quick to tweak by hand.
 
 ### Goals
