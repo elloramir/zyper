@@ -50,7 +50,7 @@ The schema is JSON with meta + api. Each field has query, regex, and dataType.
 This makes it portable, easy to version, and quick to tweak by hand.
 
 ### Goals
-- [ ] Neasted schemas
+- [ ] Nested schemas
 - [ ] Even smaller encoded HTML for faster processing and better LLM performance
 - [ ] Area of interest detection using algorithms like TextRank
 - [ ] Better LLM API to use different models and providers
