@@ -18,15 +18,21 @@ async function fromManualDescriptor() {
 		},
 	});
     const data = await scraper.scrapeSite(schema);
-    console.log(data);
+
+    utils.saveJson(schema, "schemas/climatempo-schema.json");
+    utils.saveJson(data, "schemas/climatempo.json");
 }
 
 async function fromAutoDescriptor() {
     const url = "https://coinmarketcap.com/";
     const descriptor = await analyzer.autoSchemaDescriptor(url, "Give me the list of coin prices");
+    console.debug("Generated descriptor:", JSON.stringify(descriptor, null, 2));
     const schema = await scraper.createScrapeSchema(descriptor);
     const data = await scraper.scrapeSite(schema);
-	console.log(data);
+
+    utils.saveJson(descriptor, "schemas/coinmarketcap-descriptor.json");
+    utils.saveJson(schema, "schemas/coinmarketcap-schema.json");
+    utils.saveJson(data, "schemas/coinmarketcap.json");
 }
 
 (async function() {

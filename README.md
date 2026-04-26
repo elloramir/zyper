@@ -10,11 +10,26 @@ Unlike heavier scraping stacks, this project leans on plain DOM + CSS selectors 
 
 General idea: generate a schema once, then reuse it for fast scraping runs.
 You write natural-language hints next to each field, and Zyper turns those hints into regex and a stable selector.
-The short example below shows how to create a schema and use it right away.
 
 ### Notes
 - Requires `DEEPSEEK_KEY` in the environment for schema generation.
 - You can override the default LLM by providing a custom `askJson` function that returns structured data.
+
+## Usage Example
+
+### Auto-Generated Descriptor
+
+Let the LLM automatically infer the schema from the page content:
+
+```js
+const descriptor = await analyzer.autoSchemaDescriptor("https://example.com", "Give me the list of prices");
+const schema = await scraper.createScrapeSchema(descriptor);
+const data = await scraper.scrapeSite(schema);
+```
+
+### Manual Descriptor
+
+Define the schema manually if you know exactly which fields you want to extract:
 
 ```js
 const schema = await scraper.createScrapeSchema({
@@ -28,10 +43,7 @@ const schema = await scraper.createScrapeSchema({
     }
 });
 
-utils.saveJson(schema, "schemas/schema-example.json");
-
-const stored = utils.openJson("schemas/schema-example.json");
-const data = await scraper.scrapeSite(stored);
+const data = await scraper.scrapeSite(schema);
 // returns { title: "Example Domain", price: 9.99, updatedAt: "12:30" }
 ```
 
