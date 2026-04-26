@@ -17,12 +17,11 @@ You write natural-language hints next to each field, and Zyper turns those hints
 
 ## Usage Example
 
-### Auto-Generated Descriptor
-
 Let the LLM automatically infer the schema from the page content:
 
 ```js
-const descriptor = await analyzer.autoSchemaDescriptor("https://example.com", "Give me the list of prices");
+const url = "https://example.com";
+const descriptor = await analyzer.autoSchemaDescriptor(url, "Give me the list of prices");
 const schema = await scraper.createScrapeSchema(descriptor);
 const data = await scraper.scrapeSite(schema);
 ```
